@@ -6,11 +6,6 @@ os.environ["OMP_NUM_THREADS"]='1'
 from jax.config import config
 config.update("jax_enable_x64", True)
 
-output_dir = "output"
-if not os.path.exists(output_dir):  # Check if the directory already exists
-    os.mkdir(output_dir)
-    print(f"Directory '{output_dir}' created.")
-
 ###############
 ### MPI4jax ###
 ###############

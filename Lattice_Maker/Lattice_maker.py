@@ -1,6 +1,9 @@
 import numpy as np
 from numba import jit
 
+import numpy as np
+from numba import jit
+
 def read_lattice(file_text, small=1.0e-10):
     enne=np.zeros((2,2))
     small=1.0e-10
@@ -66,7 +69,9 @@ def read_lattice(file_text, small=1.0e-10):
     enne[0,0]=float(listWords[0])   
     enne[0,1]=float(listWords[1])   
     enne[1,0]=float(listWords[2])   
-    enne[1,1]=float(listWords[3])   
+    enne[1,1]=float(listWords[3]) 
+    
+    
 
     if (enne[0,0]<=0. or enne[1,1]<=0.):
         print("box positioning")
@@ -135,6 +140,7 @@ def cluster(a, b, enne, enne1, nbase, nsite, xb, yb, small=1.0e-10):
 
     if(nsite!=ndim):
         print("wrong site number ",nsite," ",ndim)
+        
 
     print("Nsite=",ndim)
     print("Nbase=",nbase)
@@ -275,7 +281,6 @@ def table_neighbours(dist, dindip, ndim, nbase, nsite, i1, i2, enne1, small=1.0e
 
     ivic=np.zeros(((ntotalsite,maxmulti,nindm)))
 
-
     for k in range(nindm):
         d=dindip[k]
         for i in range(ndim*nbase):
@@ -351,12 +356,30 @@ def table_neighbours(dist, dindip, ndim, nbase, nsite, i1, i2, enne1, small=1.0e
                     if(iflag!=1):
                         print('wrong reduction')
                         return
+                    
+#                     if(i!=ikm): # there is an inverted site
+#                         jj=jj+1
+#                         iflagref=False
+#                         imark[ikm]=1  # ...and it is inverted
+#                     elif(i==ikm): # the inverted site is the site itself
+#                         jj=jj+1
+#                         iflagref=True
+#                     for it in range(nsite): # traslations
+#                         m=isymt[0,it]
+#                         l=isymt[i,it]
+#                         if(iflagref==False):
+#                             ivict[int(m),jj,k]=l
+#                             l=isymt[ikm,it]
+#                             ivict[int(m),jj+jshift,k]=l
+#                         elif(iflagref==True):
+#                             ivict[int(m),jj,k]=l
+
                     if(i!=ikm): # there is an inverted site
                         jj=jj+1
                         iflagref=False
                         imark[ikm]=1  # ...and it is inverted
-                    elif(i==ikm): # the inverted site is the site itself
-                        jj=jj+1
+                    elif(i==ikm): # the inverted site is the site itself 
+                        jj=jj + 1*(1-int(imulti[k])%2) # CHANGED BY DAVIDE PICCIONI
                         iflagref=True
                     for it in range(nsite): # traslations
                         m=isymt[0,it]
@@ -365,12 +388,42 @@ def table_neighbours(dist, dindip, ndim, nbase, nsite, i1, i2, enne1, small=1.0e
                             ivict[int(m),jj,k]=l
                             l=isymt[ikm,it]
                             ivict[int(m),jj+jshift,k]=l
-                        elif(iflagref==True):
-                            ivict[int(m),jj,k]=l
+                        elif(iflagref==True and int(imulti[k])%2==1): # CHANGED BY DAVIDE PICCIONI
+                            ivict[int(m),int(imulti[k])-1,k]=l # CHANGED BY DAVIDE PICCIONI
+                        elif(iflagref==True and int(imulti[k])%2==0): # CHANGED BY DAVIDE PICCIONI
+                            ivict[int(m),jj,k]=l # CHANGED BY DAVIDE PICCIONI
+
 
     ########## End Table of neighbours ########## 
+    
+    # My check on ivict because on rectacngular lattices sometimes it misses points (try 10x6 and look at distance 13 if you want)...
+    
+    for k in range(nindm):
+        imult = int(imulti[k])
+        
+        is_everything_fine = True
+        
+        for i in range(ndim*nbase):
+            ivic_line   = np.zeros(imult)
+            ivic_line  += ivic[i,:imult,k]
+            ivict_line  = np.zeros(imult)
+            ivict_line += ivict[i,:imult,k]
+            
+            ivic_line  = np.sort(ivic_line)
+            ivict_line = np.sort(ivict_line)
+            
+            if np.array_equal(ivic_line, ivict_line) == False:
+                is_everything_fine = False
+                intersection = list(set(ivic_line) & set(ivict_line))
+                missing_elements = list(set(ivic_line) - set(intersection))
+                for ind_mult in range(imult):
+                    if (ivict[i,ind_mult,k] in intersection)==False:
+                        ivict[i,ind_mult,k] = missing_elements.pop(0)
+        
+        if is_everything_fine == False:
+            print("\nThere were problems with ivict not matching with ivic at distance ", dindip[k], " (the ",k+1,"th distance).","\nivict was forced to match ivic!!!\n\n")
 
-
+                        
     return ivic, ivict, maxmulti, imulti
 
 def print_ivic(ivic, ndim, nbase, nindm, imulti):
@@ -395,7 +448,7 @@ def print_ivict(ivict, ndim, nbase, nindm, imulti):
         for i in range(ndim*nbase):
             print(i+1,end='      ')
             for j in range(int(imulti[k])):
-                print(ivict[i,j,k]+1,end='  ')
+                print(int(ivict[i,j,k]+1),end='  ')
             print(' ')
     return
 

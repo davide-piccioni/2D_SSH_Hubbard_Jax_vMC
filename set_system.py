@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+import os
 from lattice import *
 
 #############################
@@ -12,6 +13,11 @@ U_hub = 0.
 N_e_up = 32 
 N_e_do = L - N_e_up 
 N_e = N_e_up + N_e_do
+
+output_dir = "output"
+if not os.path.exists(output_dir):  # Check if the directory already exists
+    os.mkdir(output_dir)
+    print(f"Directory '{output_dir}' created.")
 
 name_output_simulations = "TEST"
 SR_run = True # True: optimize WF using SR; False: measure
