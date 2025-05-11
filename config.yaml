@@ -1,0 +1,67 @@
+# default_config.yaml
+
+# System parameters
+system:
+  t_hub: -1.0
+  omega: 1.0
+  alpha: 0.4
+  U_hub: 0.0
+  Lx: 8  # Must match lattice.py
+  Ly: 8  # Must match lattice.py
+  N_e_up: 32 # Number of up electrons (the number of down electrons is equal)
+
+# Simulation settings
+simulation:
+  SR_run: true # true to optimize, false to just measure
+  MAX_time: 41000 # In seconds
+  read_params_from_out: false # true to read parameters from the output file
+  step_to_read_params: -1 
+  name_output_simulations: "TEST"
+
+# SR parameters
+sr_parameters:
+  dt_step: 0.01 # Learning rate
+  n_SR_steps: 2 # Number of steps for the SR optimization
+  n_sweeps: 400 # Number of MC samples per step
+
+# Measurement parameters
+measurement:
+  N_blocks: 500      # Number of blocks for the measurement
+  L_each_block: 540  # Number of MC samples in each block
+
+# Monte Carlo parameters
+monte_carlo:
+  p_spin_flip: 0.25         # The probability of hopping is 1-p_spin_flip
+  p_moving_electrons: 0.5   # The probability of moving a phonon is 1-p_moving_electrons
+  displ_phon_move: 0.5      # A local phonon move is extracted with uniform probability in the interval [-0.5*displ_phon_move,0.5*displ_phon_move]
+  sparse_ave_length: 64     # How many steps of the Markov chain between the measurements of local observables (to decorrelate them)
+
+# Phonon parameters
+phonons:
+  # if set both to False, the phonons will be pinned to the lattice sites, with no BOW allowed
+  ALLOW_BOW_X_PHON: true
+  ALLOW_BOW_Y_PHON: false
+  Q_x: "pi" # Momentum of BOW phonons in x direction
+  Q_y: "pi" # Momentum of BOW phonons in y direction
+
+# Variational parameters
+variational_parameters:
+
+  # Auxiliary hamiltonian parameters
+  hopping_list: [0, 2] # 0 is chemical potential, 1 is NN hopping, 2 is NNN hopping and so on
+  sWave_pair_list: [0, 1, 2] # 0 is onsite pairing, 1 is NN sWave pairing, 2 is NNN sWave pairing and so on
+  dWave_pair_list: [0] # 0 is NN dWave pairing, 1 is NNN dWave pairing and 2 is NNNN dWave pairing. NO MORE!!!
+  hopping_values: [-0.00341175, 0.00442574]
+  sWave_pair_values: [0.06658055, 0.00332171, 0.02865038]
+  dWave_pair_values: [0.04115974]
+  
+  # baclflow phonon parameters
+  g_phonons: 0.4 
+  f_phonons_Swave: 0.0
+  f_phonons_dwave: 0.0
+  
+  # Coherent state of phonons parameters
+  z_phonons_X: 0.1
+  z_phonons_Y: 0.0
+  rescaledX_omega: 1.0
+  rescaledY_omega: 1.0
