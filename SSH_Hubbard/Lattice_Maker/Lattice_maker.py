@@ -463,8 +463,8 @@ begin = time.time()
 
 epsilon=1.0e-10
 
-a, b, enne, enne1, nbase, nsite, xb, yb = read_lattice(file_text="geometry.d", small=epsilon)
-# a, b, enne, enne1, nbase, nsite, xb, yb = read_lattice(file_text="triangular_geometry.d", small=epsilon)
+a, b, enne, enne1, nbase, nsite, xb, yb = read_lattice(file_text="geometry.txt", small=epsilon)
+# a, b, enne, enne1, nbase, nsite, xb, yb = read_lattice(file_text="triangular_geometry.txt", small=epsilon)
 
 x, y, i1, i2, dist = cluster(a, b, enne, enne1, nbase, nsite, xb, yb, small=epsilon)
 
